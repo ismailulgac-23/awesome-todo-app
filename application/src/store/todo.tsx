@@ -4,6 +4,7 @@ import { ICreateTodoProps, IUpdateTodoProps } from "../@core/interfaces";
 import { Group, Todo } from "../@core/models";
 import { PRIORITY } from "../constants/helpers";
 import httpService from "../services/http";
+import socket from "../services/socket";
 import { GroupContext } from "./group";
 import { UserContext } from "./user";
 
@@ -37,18 +38,27 @@ export default function TodoStore({ children }: ITodoStoreProps) {
     };
     const data = await httpService.post("todo", payload);
 
-    let lastTodos = [
-      { ...data.createdTodo },
-      ...groupStore.currentGroup?.todos!,
-    ];
+    if (data.createdTodo) {
 
-    groupStore.setCurrentGroup({
-      ...groupStore.currentGroup,
-      todos: PRIORITY({
-        type: priority,
-        todos: lastTodos,
-      }),
-    });
+      socket.emit("newTodoFromClient", {
+        todo: data.createdTodo,
+        members: [...groupStore.currentGroup!.members],
+        myUserID: userStore.user?.userID
+      });
+
+      let lastTodos = [
+        { ...data.createdTodo },
+        ...groupStore.currentGroup?.todos!,
+      ];
+
+      groupStore.setCurrentGroup({
+        ...groupStore.currentGroup,
+        todos: PRIORITY({
+          type: priority,
+          todos: lastTodos,
+        }),
+      });
+    }
     return data;
   };
 
@@ -93,6 +103,21 @@ export default function TodoStore({ children }: ITodoStoreProps) {
     });
     return data;
   };
+
+
+  useEffect(() => {
+    if (groupStore.currentGroup) {
+      socket.on("newTodoFromServer", (payload) => {
+        groupStore.setCurrentGroup({
+          ...groupStore.currentGroup,
+          todos: PRIORITY({
+            type: priority,
+            todos: [{ ...payload }, ...groupStore.currentGroup!.todos]
+          })
+        });
+      });
+    }
+  }, [groupStore.currentGroup, socket]);
 
   let initialState = {
     createTodo,

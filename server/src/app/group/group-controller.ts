@@ -45,17 +45,24 @@ export const createGroup = async (req: Request, res: Response) => {
   let groupCreatorID = req.body.groupCreatorID;
   if (groupName && groupName != '' && groupCreatorID && groupCreatorID != '') {
 
-    let payload = {
-      groupID: uuid(),
-      groupName,
-      groupCreatorID,
-      createdAt: Math.floor(Date.now() / 1000),
-    };
+
+
 
     try {
+      let GROUP_ID = uuid();
+
       const createdGroup = await Database.group.create({
         data: {
-          ...payload,
+          groupID: GROUP_ID,
+          groupName,
+          groupCreatorID,
+          createdAt: Math.floor(Date.now() / 1000),
+          members: {
+            create: {
+              groupMemberID: groupCreatorID,
+              ID: uuid()
+            }
+          }
         },
         include: {
           members: {
@@ -66,19 +73,12 @@ export const createGroup = async (req: Request, res: Response) => {
         }
       });
 
-      const createdMember = await Database.groupMember.create({
-        data: {
-          ID: uuid(),
-          groupID: createdGroup.groupID,
-          groupMemberID: groupCreatorID,
-        },
-      });
 
       return res.status(200).json({
         createdGroup,
-        createdMember
       });
-    } catch {
+    } catch (e) {
+      console.log("e => ", e)
       return res.status(400).json(GET_ERROR_BODY);
     }
 
@@ -112,7 +112,10 @@ export const addUserToGroup = async (req: Request, res: Response) => {
           data: {
             ID: uuid(),
             groupID,
-            groupMemberID: userID
+            groupMemberID: userID,
+          },
+          include: {
+            user: true
           }
         });
         return res.status(200).json({

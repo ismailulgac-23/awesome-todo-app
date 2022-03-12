@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { IAddUserToGroupProps, ICreateGroupProps } from "../@core/interfaces";
 import { Group, User } from "../@core/models";
 import httpService from "../services/http";
+import socket from "../services/socket";
 import { UserContext } from "./user";
 
 interface IGroupState {
@@ -39,7 +40,10 @@ export default function GroupStore({ children }: IGroupStoreProps) {
     groupCreatorID,
   }: ICreateGroupProps) => {
     const data = await httpService.post("group", { groupName, groupCreatorID });
-    setGroups((prevState) => [{ ...data.createdGroup }, ...prevState]);
+    if (data.createdGroup) {
+      socket.emit("newGroupFromClient", data.createdGroup);
+      setGroups((prevState) => [{ ...data.createdGroup }, ...prevState]);
+    }
     return data;
   };
 
@@ -56,6 +60,23 @@ export default function GroupStore({ children }: IGroupStoreProps) {
 
   const addUserToGroup = async ({ userID, groupID }: IAddUserToGroupProps) => {
     const data = await httpService.post("group/user", { userID, groupID });
+    if (data.createdMember) {
+
+      const index = groups.findIndex((e: Group) => e.groupID == data.createdMember.groupID);
+
+      let blobGroups = [...groups];
+      let blobGroup = groups[index];
+
+
+      blobGroup.members.push(data.createdMember);
+      blobGroups[index] = blobGroup;
+
+      setGroups(blobGroups)
+      socket.emit("inviteFriendFromClient", {
+        userID: data.createdMember.groupMemberID,
+        groupID: data.createdMember.groupID
+      });
+    }
     return data;
   };
 
@@ -63,16 +84,27 @@ export default function GroupStore({ children }: IGroupStoreProps) {
     setCurrentGroupLoading(true);
     let url = `group/${QUERY}`;
     const data = await httpService.get(url);
-    setCurrentGroup(data.group);
-    setCurrentGroupLoading(false);
+    if (data.group) {
+      setCurrentGroup(data.group);
+      setCurrentGroupLoading(false);
+      socket.emit("connectGroup", data.group.groupID);
+    }
     return data;
   };
 
   useEffect(() => {
-    if (QUERY) {
+    if (QUERY != null) {
       fetchGroup();
     }
   }, [QUERY]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("inviteFriendFromServer", (payload) => {
+        setGroups((prevState) => [{ ...payload }, ...prevState]);
+      });
+    }
+  }, [socket]);
 
   let initialState = {
     createGroup,

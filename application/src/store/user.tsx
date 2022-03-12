@@ -3,6 +3,7 @@ import { createContext, useEffect, useState } from "react";
 import { ILoginProps } from "../@core/interfaces";
 import { User } from "../@core/models";
 import httpService from "../services/http";
+import socket from "../services/socket";
 
 interface IUserState {
   user: User | null;
@@ -94,8 +95,11 @@ export default function UserStore({ children }: IUserStoreProps) {
         router.push("/login");
       }
     }
-    main();
-  }, []);
+    if (!token && !user) main();
+    else {
+      socket.emit("connectUser", user?.userID);
+    }
+  }, [token, user, socket]);
 
   useEffect(() => {
     if (token && user) {
