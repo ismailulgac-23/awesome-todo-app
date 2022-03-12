@@ -57,6 +57,14 @@ export default function UserStore({ children }: IUserStoreProps) {
 
   const register = async (user: ILoginProps) => {
     const data = await httpService.post("auth", user);
+    if (data.error) {
+      disconnect();
+    } else {
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem("token", data.token);
+      router.push("/");
+    }
     return data;
   };
 

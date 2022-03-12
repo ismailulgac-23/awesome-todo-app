@@ -9,7 +9,7 @@ generator client {
 
 model User {
   userID      String        @id @unique
-  username    String
+  username    String        @unique
   password    String
   profileURL  String        @default("u-6947845987546.png")
   Todo        Todo[]

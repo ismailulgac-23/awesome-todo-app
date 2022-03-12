@@ -6,7 +6,7 @@ import { User } from "../../@core/models";
 import Database from "../../db";
 import { GET_ERROR_BODY } from "../../constants/helpers";
 
-import { uuid } from 'uuidv4';
+import { v4 as uuid } from 'uuid';
 
 interface IDecodedProps {
   user: User;
