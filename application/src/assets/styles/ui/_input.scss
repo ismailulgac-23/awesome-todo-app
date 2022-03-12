@@ -1,0 +1,33 @@
+input,
+textarea {
+  outline: none;
+  border: 2px solid $primary;
+  background-color: transparent;
+  border-radius: 4px;
+  padding: 6px;
+  resize: none;
+  width: 100%;
+  color: $primary;
+  &::placeholder {
+    color: $primary;
+  }
+}
+
+select {
+  outline: none;
+  border: 2px solid $primary;
+  background-color: transparent;
+  border-radius: 4px;
+  padding: 6px 12px 6px 6px;
+  resize: none;
+  width: 100%;
+  &.URGENT {
+    color: $danger !important;
+  }
+  &.TRIVIAL {
+    color: $skyblue !important;
+  }
+  &.REGULAR {
+    color: $warningNormal !important;
+  }
+}

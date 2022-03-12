@@ -1,0 +1,47 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  userID      String        @id @unique
+  username    String
+  password    String
+  profileURL  String        @default("u-6947845987546.png")
+  Todo        Todo[]
+  GroupMember GroupMember[]
+}
+
+model GroupMember {
+  ID            String @id @unique
+  groupMemberID String
+  groupID       String
+  group         Group  @relation(fields: [groupID], references: [groupID])
+  user          User   @relation(fields: [groupMemberID], references: [userID])
+}
+
+model Group {
+  groupID        String        @id @unique
+  groupName      String
+  groupLogo      String        @default("group-logo-439867349.png")
+  groupCreatorID String
+  createdAt      Int
+  todos          Todo[]
+  members        GroupMember[]
+}
+
+model Todo {
+  todoID        String @id @unique
+  todoText      String @db.Text
+  todoCreatorID String
+  groupID       String
+  todoType      String
+  todoCreatedAt Int
+
+  todoCreator User  @relation(fields: [todoCreatorID], references: [userID])
+  group       Group @relation(fields: [groupID], references: [groupID])
+}

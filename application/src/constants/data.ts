@@ -1,0 +1,5 @@
+export const TODO_TYPES = {
+  URGENT: "URGENT",
+  REGULAR: "REGULAR",
+  TRIVIAL: "TRIVIAL"
+}

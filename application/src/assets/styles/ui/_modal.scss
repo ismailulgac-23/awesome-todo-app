@@ -1,0 +1,35 @@
+.app-modal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  z-index: 9999999;
+  background-color: #0000009a;
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  &-card {
+    background-color: #fff;
+    flex: 0.5;
+    border-radius: 12px;
+    height: 100%;
+    max-height: 50%;
+    @media (max-width: 768px) {
+      flex: 1 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0px 20px;
+    }
+    &-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid #eee;
+    }
+    &-body {
+      padding: 12px 20px;
+    }
+  }
+}
