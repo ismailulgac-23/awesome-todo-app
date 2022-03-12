@@ -1,7 +1,7 @@
 # awesome-todo-app
 
 1)
-TR - Database için önce .env dosyasından DATABASE_URL key'ine sahip url'i kendi MySQL sunucunuz için gerekli bilgileri doldurmanız yeterlidir.
+TR - Veritabanı için önce .env dosyasından DATABASE_URL key'ine sahip url'i kendi MySQL sunucunuz için gerekli bilgileri doldurmanız yeterlidir.
 EN - For the database, it is sufficient to fill in the url with the DATABASE_URL key from the .env file for your own MySQL server.
 
 --
